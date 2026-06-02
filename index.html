@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Arrhenius Calculator</title>
+</head>
+<body>
+  <h1>Arrhenius Equation Calculator</h1>
+
+  <p>Calculate k₂ using the two-temperature Arrhenius equation.</p>
+
+  <label>k₁:</label>
+  <input id="k1" type="number" step="any"><br><br>
+
+  <label>T₁ (°C):</label>
+  <input id="t1" type="number" step="any"><br><br>
+
+  <label>T₂ (°C):</label>
+  <input id="t2" type="number" step="any"><br><br>
+
+  <label>Eₐ (kJ/mol):</label>
+  <input id="ea" type="number" step="any"><br><br>
+
+  <button onclick="calculate()">Calculate</button>
+
+  <h2>Result</h2>
+  <p id="result"></p>
+
+  <h2>Steps</h2>
+  <p id="steps"></p>
+
+  <script>
+    function calculate() {
+      const R = 8.314;
+
+      const k1 = parseFloat(document.getElementById("k1").value);
+      const t1C = parseFloat(document.getElementById("t1").value);
+      const t2C = parseFloat(document.getElementById("t2").value);
+      const eaKJ = parseFloat(document.getElementById("ea").value);
+
+      const t1K = t1C + 273.15;
+      const t2K = t2C + 273.15;
+      const eaJ = eaKJ * 1000;
+
+      const exponent = (-eaJ / R) * ((1 / t2K) - (1 / t1K));
+      const k2 = k1 * Math.exp(exponent);
+
+      document.getElementById("result").innerHTML =
+        "k₂ = " + k2.toExponential(4);
+
+      document.getElementById("steps").innerHTML =
+        "T₁ = " + t1K.toFixed(2) + " K<br>" +
+        "T₂ = " + t2K.toFixed(2) + " K<br>" +
+        "Eₐ = " + eaJ.toFixed(0) + " J/mol<br><br>" +
+        "ln(k₂/k₁) = (-Eₐ/R)(1/T₂ - 1/T₁)<br>" +
+        "k₂ = k₁e^[(-Eₐ/R)(1/T₂ - 1/T₁)]<br><br>" +
+        "k₂ = " + k2.toExponential(4);
+    }
+  </script>
+</body>
+</html>
