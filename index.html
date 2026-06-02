@@ -1,35 +1,95 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Arrhenius Calculator</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f7fb;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 700px;
+      margin: 40px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 16px 0;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .result-box {
+      background: #eef3ff;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 8px;
+    }
+  </style>
+
 </head>
+
 <body>
-  <h1>Arrhenius Equation Calculator</h1>
 
-  <p>Calculate k₂ using the two-temperature Arrhenius equation.</p>
+  <div class="container">
 
-  <label>k₁:</label>
-  <input id="k1" type="number" step="any"><br><br>
+    <h1>Arrhenius Equation Calculator</h1>
 
-  <label>T₁ (°C):</label>
-  <input id="t1" type="number" step="any"><br><br>
+    <p>
+      Calculate a new reaction rate constant using the two-temperature
+      Arrhenius equation.
+    </p>
 
-  <label>T₂ (°C):</label>
-  <input id="t2" type="number" step="any"><br><br>
+    <label>Rate Constant k₁</label>
+    <input id="k1" type="number" step="any">
 
-  <label>Eₐ (kJ/mol):</label>
-  <input id="ea" type="number" step="any"><br><br>
+    <label>Temperature T₁ (°C)</label>
+    <input id="t1" type="number" step="any">
 
-  <button onclick="calculate()">Calculate</button>
+    <label>Temperature T₂ (°C)</label>
+    <input id="t2" type="number" step="any">
 
-  <h2>Result</h2>
-  <p id="result"></p>
+    <label>Activation Energy Eₐ (kJ/mol)</label>
+    <input id="ea" type="number" step="any">
 
-  <h2>Steps</h2>
-  <p id="steps"></p>
+    <button onclick="calculate()">Calculate k₂</button>
+
+    <div class="result-box">
+
+      <h2>Result</h2>
+      <p id="result">Enter values and press Calculate.</p>
+
+      <h2>Steps</h2>
+      <p id="steps"></p>
+
+    </div>
+
+  </div>
 
   <script>
     function calculate() {
+
       const R = 8.314;
 
       const k1 = parseFloat(document.getElementById("k1").value);
@@ -37,24 +97,44 @@
       const t2C = parseFloat(document.getElementById("t2").value);
       const eaKJ = parseFloat(document.getElementById("ea").value);
 
+      if (isNaN(k1) || isNaN(t1C) || isNaN(t2C) || isNaN(eaKJ)) {
+        document.getElementById("result").innerHTML =
+          "Please fill in all fields.";
+        return;
+      }
+
       const t1K = t1C + 273.15;
       const t2K = t2C + 273.15;
       const eaJ = eaKJ * 1000;
 
-      const exponent = (-eaJ / R) * ((1 / t2K) - (1 / t1K));
-      const k2 = k1 * Math.exp(exponent);
+      const exponent =
+        (-eaJ / R) * ((1 / t2K) - (1 / t1K));
+
+      const k2 =
+        k1 * Math.exp(exponent);
 
       document.getElementById("result").innerHTML =
-        "k₂ = " + k2.toExponential(4);
+        "<strong>k₂ = </strong>" +
+        k2.toExponential(4);
 
       document.getElementById("steps").innerHTML =
-        "T₁ = " + t1K.toFixed(2) + " K<br>" +
-        "T₂ = " + t2K.toFixed(2) + " K<br>" +
-        "Eₐ = " + eaJ.toFixed(0) + " J/mol<br><br>" +
-        "ln(k₂/k₁) = (-Eₐ/R)(1/T₂ - 1/T₁)<br>" +
-        "k₂ = k₁e^[(-Eₐ/R)(1/T₂ - 1/T₁)]<br><br>" +
+        "T₁ = " + t1C + "°C = " +
+        t1K.toFixed(2) + " K<br><br>" +
+
+        "T₂ = " + t2C + "°C = " +
+        t2K.toFixed(2) + " K<br><br>" +
+
+        "Eₐ = " + eaKJ + " kJ/mol = " +
+        eaJ.toFixed(0) + " J/mol<br><br>" +
+
+        "Using the Arrhenius equation:<br><br>" +
+
+        "ln(k₂/k₁) = (-Eₐ/R)(1/T₂ - 1/T₁)<br><br>" +
+
         "k₂ = " + k2.toExponential(4);
     }
   </script>
+
 </body>
+
 </html>
