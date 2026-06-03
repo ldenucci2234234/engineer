@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChemE Hub — Engineering Calculators</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f0e;
+    --bg2: #161714;
+    --bg3: #1e1f1c;
+    --border: #2a2b27;
+    --accent: #c8f04a;
+    --accent2: #7fffc4;
+    --accent3: #ff6b35;
+    --text: #f0f0eb;
+    --text2: #9a9b94;
+    --text3: #5a5b55;
+    --card: #181917;
+    --input-bg: #111210;
+    --radius: 10px;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+    position: sticky;
+    top: 0;
+    background: rgba(14,15,14,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 20px;
+    letter-spacing: -0.5px;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .logo-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: inline-block;
+  }
+
+  .nav-links { display: flex; gap: 28px; list-style: none; }
+  .nav-links a {
+    color: var(--text2);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    transition: color 0.15s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--text); }
+
+  .page-wrap { max-width: 1100px; margin: 0 auto; padding: 48px 40px 80px; }
+  .hero { margin-bottom: 48px; }
+
+  .hero-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid rgba(200,240,74,0.25);
+    background: rgba(200,240,74,0.06);
+    padding: 4px 10px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
+
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1.5px;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p { font-size: 16px; color: var(--text2); max-width: 620px; font-weight: 300; }
+
+  .tab-bar {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 36px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 1px;
+  }
+  .tab-bar::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 16px;
+    cursor: pointer;
+    position: relative;
+    white-space: nowrap;
+    border-radius: var(--radius) var(--radius) 0 0;
+    transition: color 0.15s, background 0.15s;
+    letter-spacing: 0.2px;
+  }
+  .tab-btn:hover { color: var(--text2); background: var(--bg3); }
+  .tab-btn.active { color: var(--text); background: var(--bg3); }
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 2px;
+    background: var(--accent);
+    border-radius: 2px 2px 0 0;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .calc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  .calc-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .calc-card:hover { border-color: #3a3b36; transform: translateY(-1px); }
+
+  .calc-header {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .calc-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+    margin-bottom: 8px;
+  }
+  .icon-green { background: rgba(200,240,74,0.1); }
+  .icon-teal  { background: rgba(127,255,196,0.1); }
+  .icon-orange{ background: rgba(255,107,53,0.12); }
+  .icon-blue  { background: rgba(100,180,255,0.1); }
+  .icon-purple{ background: rgba(180,130,255,0.1); }
+
+  .calc-name { font-family: var(--font-display); font-size: 15px; font-weight: 700; letter-spacing: -0.3px; margin-bottom: 2px; }
+  .calc-desc { font-size: 12px; color: var(--text2); line-height: 1.4; }
+  .calc-body { padding: 18px 20px; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+  .field-row.full { grid-template-columns: 1fr; }
+  .field-row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: var(--font-mono);
+  }
+
+  .field input, .field select {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    padding: 8px 10px;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s;
+    appearance: none;
+  }
+  .field input:focus, .field select:focus { border-color: rgba(200,240,74,0.4); }
+  .field input::placeholder { color: var(--text3); }
+
+  .field select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%235a5b55'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 26px;
+  }
+
+  .calc-btn {
+    width: 100%;
+    margin-top: 14px;
+    background: var(--accent);
+    color: #0e0f0e;
+    border: none;
+    border-radius: 8px;
+    font-family: var(--font-display);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    padding: 10px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    text-transform: uppercase;
+  }
+  .calc-btn:hover { opacity: 0.88; }
+  .calc-btn:active { transform: scale(0.98); }
+
+  .result-box {
+    margin-top: 12px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    display: none;
+  }
+  .result-box.show { display: block; }
+  .result-label { font-family: var(--font-mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+  .result-value { font-family: var(--font-mono); font-size: 22px; font-weight: 500; color: var(--accent); letter-spacing: -0.5px; }
+  .result-unit { font-size: 13px; color: var(--text2); margin-left: 4px; }
+  .result-formula { margin-top: 8px; font-size: 11px; color: var(--text3); font-family: var(--font-mono); border-top: 1px solid var(--border); padding-top: 8px; }
+
+  .section-label { font-family: var(--font-mono); font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 16px; display: flex; align-items: center; gap: 10px; }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .ref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .ref-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+  .ref-card h3 { font-family: var(--font-display); font-size: 14px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
+  .ref-row { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--border); font-size: 12px; gap: 12px; }
+  .ref-row:last-child { border-bottom: none; }
+  .ref-sym { font-family: var(--font-mono); color: var(--accent2); flex-shrink: 0; }
+  .ref-def { color: var(--text2); text-align: right; }
+
+  .page-footer { margin-top: 60px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 12px; color: var(--text3); font-family: var(--font-mono); display: flex; justify-content: space-between; align-items: center; }
+
+  @media (max-width: 680px) {
+    header { padding: 0 20px; }
+    .page-wrap { padding: 28px 20px 60px; }
+    .calc-grid { grid-template-columns: 1fr; }
+    .field-row { grid-template-columns: 1fr; }
+    .field-row.three { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <a href="#" class="logo"><span class="logo-dot"></span>ChemE Hub</a>
+  <ul class="nav-links">
+    <li><a href="#" class="active">Calculators</a></li>
+    <li><a href="#tab-refs">Formula Reference</a></li>
+    <li><a href="#">Study Guides</a></li>
+    <li><a href="#">Newsletter</a></li>
+  </ul>
+</header>
+
+<div class="page-wrap">
+  <div class="hero">
+    <div class="hero-tag">⚗ Engineering Tools</div>
+    <h1>ChemE <span>Calculators</span></h1>
+    <p>Fast, accurate tools for heat transfer, mass balance, transport phenomena, thermodynamics, and reaction engineering. Built by a ChemE student, for ChemE students.</p>
+  </div>
+
+  <div class="tab-bar" role="tablist">
+    <button class="tab-btn active" onclick="switchTab(event, 'heat')" role="tab">Heat Transfer</button>
+    <button class="tab-btn" onclick="switchTab(event, 'mass')" role="tab">Mass &amp; Energy Balance</button>
+    <button class="tab-btn" onclick="switchTab(event, 'fluid')" role="tab">Fluid Mechanics</button>
+    <button class="tab-btn" onclick="switchTab(event, 'thermo')" role="tab">Thermodynamics</button>
+    <button class="tab-btn" onclick="switchTab(event, 'rxn')" role="tab">Reaction Engineering</button>
+    <button class="tab-btn" onclick="switchTab(event, 'refs')" role="tab">Formula Reference</button>
+  </div>
+
+  <div id="tab-heat" class="tab-panel active">
+    <div class="section-label">Heat Transfer Calculators</div>
+    <div class="calc-grid">
+      <div class="calc-card">
+        <div class="calc-header"><div><div class="calc-icon icon-green">🔥</div><div class="calc-name">Sensible Heat</div><div class="calc-desc">Calculate heat transfer for a temperature change: Q = mcΔT</div></div></div>
+        <div class="calc-body">
+          <div class="field-row"><div class="field"><label>Mass (kg)</label><input type="number" id="ht1-m" placeholder="5.0" step="any"></div><div class="field"><label>Cp (J/kg·K)</label><input type="number" id="ht1-cp" placeholder="4184" step="any"></div></div>
+          <div class="field-row"><div class="field"><label>T_in (°C)</label><input type="number" id="ht1-t1" placeholder="20" step="any"></div><div class="field"><label>T_out (°C)</label><input type="number" id="ht1-t2" placeholder="80" step="any"></div></div>
+          <button class="calc-btn" onclick="calcSensibleHeat()">Calculate Q</button><div class="result-box" id="ht1-result"><div class="result-label">Heat Transfer Q</div><div><span class="result-value" id="ht1-val">—</span><span class="result-unit">J</span></div><div class="result-formula" id="ht1-formula"></div></div>
+        </div>
+      </div>
+      <div class="calc-card">
+        <div class="calc-header"><div><div class="calc-icon icon-teal">♨</div><div class="calc-name">LMTD Calculator</div><div class="calc-desc">Log mean temperature difference for heat exchangers</div></div></div>
+        <div class="calc-body">
+          <div class="field-row full"><div class="field"><label>Flow Configuration</label><select id="lmtd-type"><option value="counter">Counter-current</option><option value="parallel">Parallel</option></select></div></div>
+          <div class="field-row"><div class="field"><label>T_hot,in (°C)</label><input type="number" id="lmtd-th1" placeholder="120" step="any"></div><div class="field"><label>T_hot,out (°C)</label><input type="number" id="lmtd-th2" placeholder="60" step="any"></div></div>
+          <div class="field-row"><div class="field"><label>T_cold,in (°C)</label><input type="number" id="lmtd-tc1" placeholder="20" step="any"></div><div class="field"><label>T_cold,out (°C)</label><input type="number" id="lmtd-tc2" placeholder="50" step="any"></div></div>
+          <button class="calc-btn" onclick="calcLMTD()">Calculate LMTD</button><div class="result-box" id="lmtd-result"><div class="result-label">Log Mean ΔT</div><div><span class="result-value" id="lmtd-val">—</span><span class="result-unit">°C</span></div><div class="result-formula" id="lmtd-formula"></div></div>
+        </div>
+      </div>
+      <div class="calc-card">
+        <div class="calc-header"><div><div class="calc-icon icon-orange">📐</div><div class="calc-name">Heat Exchanger Area</div><div class="calc-desc">Required area from duty, U, and LMTD</div></div></div>
+        <div class="calc-body"><div class="field-row three"><div class="field"><label>Q (W)</label><input type="number" id="hx-q" placeholder="50000" step="any"></div><div class="field"><label>U (W/m²·K)</label><input type="number" id="hx-u" placeholder="500" step="any"></div><div class="field"><label>LMTD (K)</label><input type="number" id="hx-lmtd" placeholder="35" step="any"></div></div><button class="calc-btn" onclick="calcHXArea()">Calculate Area</button><div class="result-box" id="hx-result"><div class="result-label">Required Area A</div><div><span class="result-value" id="hx-val">—</span><span class="result-unit">m²</span></div><div class="result-formula" id="hx-formula"></div></div></div>
+      </div>
+      <div class="calc-card">
+        <div class="calc-header"><div><div class="calc-icon icon-blue">🧱</div><div class="calc-name">Fourier Conduction</div><div class="calc-desc">Steady-state heat transfer through a flat wall</div></div></div>
+        <div class="calc-body"><div class="field-row"><div class="field"><label>k (W/m·K)</label><input type="number" id="fc-k" placeholder="0.6" step="any"></div><div class="field"><label>Area (m²)</label><input type="number" id="fc-a" placeholder="1.0" step="any"></div></div><div class="field-row"><div class="field"><label>ΔT (K)</label><input type="number" id="fc-dt" placeholder="50" step="any"></div><div class="field"><label>Thickness (m)</label><input type="number" id="fc-l" placeholder="0.05" step="any"></div></div><button class="calc-btn" onclick="calcFourier()">Calculate q</button><div class="result-box" id="fc-result"><div class="result-label">Heat Transfer Rate q</div><div><span class="result-value" id="fc-val">—</span><span class="result-unit">W</span></div><div class="result-formula" id="fc-formula"></div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-mass" class="tab-panel">
+    <div class="section-label">Mass &amp; Energy Balance Calculators</div>
+    <div class="calc-grid">
+      <div class="calc-card"><div class="calc-header"><div><div class="calc-icon icon-green">⚖</div><div class="calc-name">Mass Balance</div><div class="calc-desc">Steady-state single-component balance</div></div></div><div class="calc-body"><div class="field-row"><div class="field"><label>Feed (kg/s)</label><input type="number" id="mb-in" placeholder="10" step="any"></div><div class="field"><label>Product (kg/s)</label><input type="number" id="mb-out" placeholder="7.5" step="any"></div></div><button class="calc-btn" onclick="calcMassBalance()">Calculate Accumulation</button><div class="result-box" id="mb-result"><div class="result-label">Accumulation Rate</div><div><span class="result-value" id="mb-val">—</span><span class="result-unit">kg/s</span></div><div class="result-formula" id="mb-formula"></div></div></div></div>
+      <div class="calc-card"><div class="calc-header"><div><div class="calc-icon icon-blue">🧪</div><div class="calc-name">Mixing Concentration</div><div class="calc-desc">Outlet concentration for two streams</div></div></div><div class="calc-body"><div class="field-row"><div class="field"><label>Flow 1</label><input type="number" id="mix-f1" placeholder="5" step="any"></div><div class="field"><label>Conc. 1</label><input type="number" id="mix-c1" placeholder="0.30" step="any"></div></div><div class="field-row"><div class="field"><label>Flow 2</label><input type="number" id="mix-f2" placeholder="3" step="any"></div><div class="field"><label>Conc. 2</label><input type="number" id="mix-c2" placeholder="0.10" step="any"></div></div><button class="calc-btn" onclick="calcMixing()">Calculate Outlet Conc.</button><div class="result-box" id="mix-result"><div class="result-label">Mixed Stream Concentration</div><div><span class="result-value" id="mix-val">—</span><span class="result-unit">fraction</span></div><div class="result-formula" id="mix-formula"></div></div></div></div>
+      <div class="calc-card"><div class="calc-header"><div><div class="calc-icon icon-purple">⚡</div><div class="calc-name">Open System Energy Balance</div><div class="calc-desc">Q = ṁCpΔT for steady flow</div></div></div><div class="calc-body"><div class="field-row three"><div class="field"><label>ṁ (kg/s)</label><input type="number" id="eb-m" placeholder="2.5" step="any"></div><div class="field"><label>Cp (J/kg·K)</label><input type="number" id="eb-cp" placeholder="4184" step="any"></div><div class="field"><label>ΔT (K)</label><input type="number" id="eb-dt" placeholder="30" step="any"></div></div><button class="calc-btn" onclick="calcEnergyBalance()">Calculate Q</button><div class="result-box" id="eb-result"><div class="result-label">Heat Duty Q</div><div><span class="result-value" id="eb-val">—</span><span class="result-unit">W</span></div><div class="result-formula" id="eb-formula"></div></div></div></div>
+    </div>
+  </div>
+
+  <div id="tab-fluid" class="tab-panel">
+    <div class="section-label">Fluid Mechanics Calculators</div>
+    <div class="calc-grid">
+      <div class="calc-card"><div class="calc-header"><div><div class="calc-icon icon-teal">🌊</div><div class="calc-name">Reynolds Number</div><div class="calc-desc">Determine laminar or turbulent flow</div></div></div><div class="calc-body"><div class="field-row"><div class="field"><label>Density ρ (kg/m³)</label><input type="number" id="re-rho" placeholder="1000" step="any"></div><div class="field"><label>Velocity v (m/s)</label><input type="number" id="re-v" placeholder="2" step="any"></div></div><div class="field-row"><div class="field"><label>Diameter D (m)</label><input type="number" id="re-d" placeholder="0.05" step="any"></div><div class="field"><label>Viscosity μ (Pa·s)</label><input type="number" id="re-mu" placeholder="0.001" step="any"></div></div><button class="calc-btn" onclick="calcReynolds()">Calculate Re</button><div class="result-box" id="re-result"><div class="result-label">Reynolds Number</div><div><span class="result-value" id="re-val">—</span><span class="result-unit" id="re-regime"></span></div><div class="result-formula" id="re-formula"></div></div></div></div>
+      <div class="calc-card"><div class="calc-header"><div><div class="calc-icon icon-orange">📉</div><div class="calc-name">Darcy Pressure Drop</div><div class="calc-desc">ΔP = f(L/D)(ρv²/2)</div></div></div><div class="calc-body"><div class="field-row"><div class="field"><label>f</label><input type="number" id="dp-f" placeholder="0.02" step="any"></div><div class="field"><label>L (m)</label><input type="number" id="dp-l" placeholder="10" step="any"></div></div><div class="field-row"><div class="field"><label>D (m)</label><input type="number" id="dp-d" placeholder="0.05" step="any"></div><div class="field"><label>ρ (kg/m³)</label><input type="number" id="dp-rho" placeholder="1000" step="any"></div></div><div class="field-row full"><div class="field"><label>v (m/s)</label><input type="number" id="dp-v" placeholder="2" step="any"></div></div><button class="calc-btn" onclick="calcPressureDrop()">Calculate ΔP</button><div class="result-box" id="dp-result"><div class="result-label">Pressure Drop</div><div><span class="result-value" id="dp-val">—</span><span class="result-unit">Pa</span></div><div class="result-formula" id="dp-formula"></div></div></div></div>
+    </div>
+  </div>
+
+  <div id="tab-thermo" class="tab-panel">
+    <div class="section-label">Thermodynamics Calculators</div>
+    <div class="calc-grid">
+      <div class="calc-card"><div class="calc-header"><div><div class="calc-icon icon-green">💨</div><div class="calc-name">Ideal Gas Law</div><div class="calc-desc">Solve for pressure using P = nRT/V</div></div></div><div class="calc-body"><div class="field-row"><div class="field"><label>n (mol)</label><input type="number" id="ig-n" placeholder="1" step="any"></div><div class="field"><label>T (K)</label><input type="number" id="ig-t" placeholder="298" step="any"></div></div><div class="field-row full"><div class="field"><label>V (m³)</label><input type="number" id="ig-v" placeholder="0.0245" step="any"></div></div><button class="calc-btn" onclick="calcIdealGas()">Calculate P</button><div class="result-box" id="ig-result"><div class="result-label">Pressure</div><div><span class="result-value" id="ig-val">—</span><span class="result-unit">Pa</span></div><div class="result-formula" id="ig-formula"></div></div></div></div>
+    </div>
+  </div>
+
+  <div id="tab-rxn" class="tab-panel">
+    <div class="section-label">Reaction Engineering Calculators</div>
+    <div class="calc-grid">
+      <div class="calc-card"><div class="calc-header"><div><div class="calc-icon icon-orange">🔄</div><div class="calc-name">Reactor Conversion</div><div class="calc-desc">X = (F₀ - F) / F₀</div></div></div><div class="calc-body"><div class="field-row"><div class="field"><label>F₀ (mol/s)</label><input type="number" id="conv-f0" placeholder="10" step="any"></div><div class="field"><label>F (mol/s)</label><input type="number" id="conv-f" placeholder="3" step="any"></div></div><button class="calc-btn" onclick="calcConversion()">Calculate X</button><div class="result-box" id="rxconv-result"><div class="result-label">Conversion</div><div><span class="result-value" id="rxconv-val">—</span><span class="result-unit">%</span></div><div class="result-formula" id="rxconv-formula"></div></div></div></div>
+      <div class="calc-card"><div class="calc-header"><div><div class="calc-icon icon-purple">📈</div><div class="calc-name">Arrhenius Rate Constant</div><div class="calc-desc">k₂ from k₁, Eₐ, T₁, and T₂</div></div></div><div class="calc-body"><div class="field-row"><div class="field"><label>k₁</label><input type="number" id="arr-k1" placeholder="0.01" step="any"></div><div class="field"><label>Eₐ (J/mol)</label><input type="number" id="arr-ea" placeholder="50000" step="any"></div></div><div class="field-row"><div class="field"><label>T₁ (K)</label><input type="number" id="arr-t1" placeholder="300" step="any"></div><div class="field"><label>T₂ (K)</label><input type="number" id="arr-t2" placeholder="330" step="any"></div></div><button class="calc-btn" onclick="calcArrhenius()">Calculate k₂</button><div class="result-box" id="arr-result"><div class="result-label">Rate Constant k₂</div><div><span class="result-value" id="arr-val">—</span><span class="result-unit">same units as k₁</span></div><div class="result-formula" id="arr-formula"></div></div></div></div>
+    </div>
+  </div>
+
+  <div id="tab-refs" class="tab-panel">
+    <div class="section-label">Formula Reference</div>
+    <div class="ref-grid">
+      <div class="ref-card"><h3>Heat Transfer</h3><div class="ref-row"><span class="ref-sym">Q = mcΔT</span><span class="ref-def">Sensible heat</span></div><div class="ref-row"><span class="ref-sym">Q = UAΔTlm</span><span class="ref-def">Heat exchanger duty</span></div><div class="ref-row"><span class="ref-sym">q = kAΔT/L</span><span class="ref-def">Conduction</span></div></div>
+      <div class="ref-card"><h3>Fluids</h3><div class="ref-row"><span class="ref-sym">Re = ρvD/μ</span><span class="ref-def">Flow regime</span></div><div class="ref-row"><span class="ref-sym">ΔP = f(L/D)ρv²/2</span><span class="ref-def">Darcy-Weisbach</span></div></div>
+      <div class="ref-card"><h3>Thermo / Kinetics</h3><div class="ref-row"><span class="ref-sym">PV = nRT</span><span class="ref-def">Ideal gas law</span></div><div class="ref-row"><span class="ref-sym">ln(k₂/k₁)=−Ea/R(1/T₂−1/T₁)</span><span class="ref-def">Arrhenius</span></div></div>
+    </div>
+  </div>
+
+  <div class="page-footer"><span>ChemE Hub v0.2</span><span>Built as a starter project</span></div>
+</div>
+
+<script>
+  function switchTab(event, tabName) {
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    document.getElementById('tab-' + tabName).classList.add('active');
+  }
+
+  function getNumber(id) {
+    return parseFloat(document.getElementById(id).value);
+  }
+
+  function invalid(values) {
+    return values.some(value => Number.isNaN(value));
+  }
+
+  function showResult(boxId, valueId, formulaId, value, formula) {
+    document.getElementById(valueId).textContent = value;
+    document.getElementById(formulaId).textContent = formula;
+    document.getElementById(boxId).classList.add('show');
+  }
+
+  function showError(message) {
+    alert(message || 'Please fill in all fields with valid numbers.');
+  }
+
+  function calcSensibleHeat() {
+    const m = getNumber('ht1-m'), cp = getNumber('ht1-cp'), t1 = getNumber('ht1-t1'), t2 = getNumber('ht1-t2');
+    if (invalid([m, cp, t1, t2])) return showError();
+    const q = m * cp * (t2 - t1);
+    showResult('ht1-result', 'ht1-val', 'ht1-formula', q.toExponential(3), `Q = ${m} × ${cp} × (${t2} - ${t1})`);
+  }
+
+  function calcLMTD() {
+    const type = document.getElementById('lmtd-type').value;
+    const th1 = getNumber('lmtd-th1'), th2 = getNumber('lmtd-th2'), tc1 = getNumber('lmtd-tc1'), tc2 = getNumber('lmtd-tc2');
+    if (invalid([th1, th2, tc1, tc2])) return showError();
+    const dt1 = type === 'counter' ? th1 - tc2 : th1 - tc1;
+    const dt2 = type === 'counter' ? th2 - tc1 : th2 - tc2;
+    if (dt1 <= 0 || dt2 <= 0) return showError('Temperature differences must be positive.');
+    const lmtd = Math.abs(dt1 - dt2) < 1e-9 ? dt1 : (dt1 - dt2) / Math.log(dt1 / dt2);
+    showResult('lmtd-result', 'lmtd-val', 'lmtd-formula', lmtd.toFixed(3), `ΔTlm = (${dt1.toFixed(2)} - ${dt2.toFixed(2)}) / ln(${dt1.toFixed(2)} / ${dt2.toFixed(2)})`);
+  }
+
+  function calcHXArea() {
+    const q = getNumber('hx-q'), u = getNumber('hx-u'), lmtd = getNumber('hx-lmtd');
+    if (invalid([q, u, lmtd]) || u === 0 || lmtd === 0) return showError();
+    const area = q / (u * lmtd);
+    showResult('hx-result', 'hx-val', 'hx-formula', area.toFixed(4), `A = ${q} / (${u} × ${lmtd})`);
+  }
+
+  function calcFourier() {
+    const k = getNumber('fc-k'), a = getNumber('fc-a'), dt = getNumber('fc-dt'), l = getNumber('fc-l');
+    if (invalid([k, a, dt, l]) || l === 0) return showError();
+    const q = k * a * dt / l;
+    showResult('fc-result', 'fc-val', 'fc-formula', q.toFixed(3), `q = ${k} × ${a} × ${dt} / ${l}`);
+  }
+
+  function calcMassBalance() {
+    const input = getNumber('mb-in'), output = getNumber('mb-out');
+    if (invalid([input, output])) return showError();
+    const acc = input - output;
+    showResult('mb-result', 'mb-val', 'mb-formula', acc.toFixed(4), `Accumulation = In - Out = ${input} - ${output}`);
+  }
+
+  function calcMixing() {
+    const f1 = getNumber('mix-f1'), c1 = getNumber('mix-c1'), f2 = getNumber('mix-f2'), c2 = getNumber('mix-c2');
+    if (invalid([f1, c1, f2, c2]) || f1 + f2 === 0) return showError();
+    const cOut = (f1 * c1 + f2 * c2) / (f1 + f2);
+    showResult('mix-result', 'mix-val', 'mix-formula', cOut.toFixed(5), `Cout = (${f1}×${c1} + ${f2}×${c2}) / (${f1}+${f2})`);
+  }
+
+  function calcEnergyBalance() {
+    const m = getNumber('eb-m'), cp = getNumber('eb-cp'), dt = getNumber('eb-dt');
+    if (invalid([m, cp, dt])) return showError();
+    const q = m * cp * dt;
+    showResult('eb-result', 'eb-val', 'eb-formula', q.toExponential(3), `Q = ${m} × ${cp} × ${dt}`);
+  }
+
+  function calcReynolds() {
+    const rho = getNumber('re-rho'), v = getNumber('re-v'), d = getNumber('re-d'), mu = getNumber('re-mu');
+    if (invalid([rho, v, d, mu]) || mu === 0) return showError();
+    const re = rho * v * d / mu;
+    let regime = ' transitional';
+    if (re < 2300) regime = ' laminar';
+    if (re > 4000) regime = ' turbulent';
+    document.getElementById('re-regime').textContent = regime;
+    showResult('re-result', 're-val', 're-formula', re.toFixed(0), `Re = ${rho} × ${v} × ${d} / ${mu}`);
+  }
+
+  function calcPressureDrop() {
+    const f = getNumber('dp-f'), l = getNumber('dp-l'), d = getNumber('dp-d'), rho = getNumber('dp-rho'), v = getNumber('dp-v');
+    if (invalid([f, l, d, rho, v]) || d === 0) return showError();
+    const dp = f * (l / d) * (rho * v * v / 2);
+    showResult('dp-result', 'dp-val', 'dp-formula', dp.toFixed(2), `ΔP = ${f} × (${l}/${d}) × (${rho} × ${v}² / 2)`);
+  }
+
+  function calcIdealGas() {
+    const n = getNumber('ig-n'), t = getNumber('ig-t'), v = getNumber('ig-v');
+    if (invalid([n, t, v]) || v === 0) return showError();
+    const R = 8.314;
+    const p = n * R * t / v;
+    showResult('ig-result', 'ig-val', 'ig-formula', p.toExponential(3), `P = ${n} × 8.314 × ${t} / ${v}`);
+  }
+
+  function calcConversion() {
+    const f0 = getNumber('conv-f0'), f = getNumber('conv-f');
+    if (invalid([f0, f]) || f0 === 0) return showError();
+    const x = (f0 - f) / f0 * 100;
+    showResult('rxconv-result', 'rxconv-val', 'rxconv-formula', x.toFixed(2), `X = (${f0} - ${f}) / ${f0} × 100%`);
+  }
+
+  function calcArrhenius() {
+    const k1 = getNumber('arr-k1'), ea = getNumber('arr-ea'), t1 = getNumber('arr-t1'), t2 = getNumber('arr-t2');
+    if (invalid([k1, ea, t1, t2]) || t1 === 0 || t2 === 0) return showError();
+    const R = 8.314;
+    const k2 = k1 * Math.exp((-ea / R) * ((1 / t2) - (1 / t1)));
+    showResult('arr-result', 'arr-val', 'arr-formula', k2.toExponential(4), `k2 = ${k1} × exp[(-${ea}/8.314) × (1/${t2} - 1/${t1})]`);
+  }
+</script>
+</body>
+</html>
